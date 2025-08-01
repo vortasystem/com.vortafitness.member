@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Vorta Fitness - منطقة الأعضاء</title>
+    
+    <!-- External Libraries -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&family=Tahoma:wght@400;700&display=swap" rel="stylesheet">
+    
+    <!-- INTERNAL CSS -->
+    <style>
+        :root {
+            --dark-bg: #121419;
+            --dark-surface: #1a1c23;
+            --primary-color: #0d6efd;
+            --success-color: #198754;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --text-light: #f8f9fa;
+            --text-muted: #8a92a6;
+            --border-color: #3b3e47;
+            --body-font: 'Tahoma', sans-serif;
+        }
+        body { font-family: var(--body-font); background-color: var(--dark-bg); color: var(--text-light); margin: 0; padding-bottom: 80px; font-size: 1rem; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+        .page-title { margin-bottom: 1.5rem; font-weight: 600; }
+        .card-view { background-color: var(--dark-surface); border-radius: 0.75rem; border: 1px solid var(--border-color); }
+        .login-container { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1rem; flex-direction: column; }
+        .login-box { width: 100%; max-width: 380px; padding: 2.5rem; }
+        .login-header { display: flex; flex-direction: column; align-items: center; justify-content: center; margin-bottom: 2rem; }
+        .login-header .fa-dumbbell { color: var(--primary-color); }
+        .login-header h1 { font-weight: 600; font-size: 1.75rem; }
+        .login-header p { color: var(--text-muted); }
+        #login-error-msg, #app-container { display: none; }
+        .app-header { background-color: var(--dark-surface); padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); }
+        .app-header h5 { margin-bottom: 0; font-weight: 600; font-family: 'Poppins', sans-serif; }
+        .app-header .welcome-text { font-size: 0.9rem; color: var(--text-muted); }
+        #logout-btn { color: var(--danger-color); }
+        .tab-content { display: none; padding: 1.5rem; }
+        .tab-content.active { display: block; }
+        .status-card { padding: 1.5rem; text-align: center; margin-bottom: 1.5rem; }
+        .status-card .status-label { font-size: 1rem; font-weight: 500; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        .status-card .status-text { font-size: 2rem; font-weight: 700; margin: 0.5rem 0; }
+        .status-card .status-days { font-size: 1.2rem; font-weight: 500; }
+        .status-card .status-text.text-success { color: var(--success-color) !important; }
+        .status-card .status-text.text-warning { color: var(--warning-color) !important; }
+        .status-card .status-text.text-danger { color: var(--danger-color) !important; }
+        .qr-card { padding: 2rem; display: flex; flex-direction: column; align-items: center; }
+        .qr-card #qrcode { background-color: white; padding: 1rem; border-radius: 0.5rem; margin-bottom: 1.5rem; }
+        .qr-card h6 { font-weight: 600; }
+        .qr-card p { color: var(--text-muted); }
+        .profile-list .list-group-item { background-color: transparent; border-color: var(--border-color); display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; }
+        .profile-list .list-group-item .label { color: var(--text-muted); font-weight: 500; }
+        /* FIX: Profile value text color */
+        .profile-list .list-group-item .value { font-weight: 600; color: var(--text-light); }
+        .history-card { margin-top: 1.5rem; padding: 1rem; }
+        .accordion-button { background-color: transparent !important; color: var(--text-light) !important; box-shadow: none !important; border-bottom: 1px solid var(--border-color); }
+        .accordion-button:not(.collapsed) { background-color: var(--dark-bg) !important; border-bottom-color: var(--primary-color); }
+        .accordion-button:not(.collapsed)::after { background-image: var(--bs-accordion-btn-active-icon); }
+        .accordion-item { border: none !important; background-color: transparent !important;}
+        .accordion-body { color: var(--text-light); }
+        .message-item { padding: 1rem; margin-bottom: 1rem; }
+        .message-item h6 { font-weight: 600; color: var(--primary-color); }
+        .message-item .date { font-size: 0.85rem; color: var(--text-muted); }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background-color: var(--dark-surface); display: flex; justify-content: space-around; padding: 0.5rem 0; border-top: 1px solid var(--border-color); box-shadow: 0 -5px 15px rgba(0,0,0,0.2); z-index: 1000; }
+        .nav-btn { background: none; border: none; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; padding: 0.5rem; font-size: 0.75rem; text-decoration: none; flex-grow: 1; transition: color 0.2s ease; position: relative; }
+        .nav-btn i { font-size: 1.5rem; margin-bottom: 0.25rem; }
+        .nav-btn.active { color: var(--primary-color); }
+        .notification-badge { position: absolute; top: 5px; background-color: var(--danger-color); color: white; border-radius: 50%; width: 10px; height: 10px; display: none; }
+        .spinner-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: none; align-items: center; justify-content: center; z-index: 9999; }
+        [dir="rtl"] { text-align: right; }
+        [dir="rtl"] .notification-badge { right: auto; left: 25%; }
+        [dir="rtl"] .me-2 { margin-left: .5rem !important; margin-right: 0 !important; }
+        [dir="rtl"] .accordion-button::after { margin-left: 0; margin-right: auto; }
+    </style>
+</head>
+<body>
+
+    <div id="loading-spinner" class="spinner-overlay"><div class="spinner-border text-primary" role="status"></div></div>
+
+    <div id="login-screen" class="login-container">
+        <div class="login-header">
+            <i class="fas fa-dumbbell fa-3x mb-3"></i>
+            <h1>Vorta Fitness</h1>
+            <p></p>
+        </div>
+        <div class="login-box card-view">
+            <form id="login-form">
+                <div class="mb-3">
+                    <label for="phone" class="form-label"></label>
+                    <input type="tel" class="form-control form-control-lg" id="phone" required>
+                </div>
+                <div class="alert alert-danger mt-3" id="login-error-msg"></div>
+                <button type="submit" class="btn btn-primary w-100 btn-lg mt-3"></button>
+            </form>
+        </div>
+    </div>
+
+    <div id="app-container">
+        <header class="app-header">
+            <div>
+                <h5 id="welcome-message"></h5>
+                <span class="welcome-text" id="club-id-text"></span>
+            </div>
+            <button class="btn btn-sm" id="logout-btn"><i class="fas fa-sign-out-alt fa-lg"></i></button>
+        </header>
+
+        <main>
+            <!-- Home Tab -->
+            <div id="home-tab" class="tab-content">
+                <div class="status-card card-view">
+                    <div class="status-label" id="sub-status-label"></div>
+                    <h2 class="status-text" id="sub-status-text"></h2>
+                    <p class="status-days" id="sub-days-left-text"></p>
+                    <small class="text-muted" id="sub-end-date-text"></small>
+                </div>
+                <div class="qr-card card-view">
+                    <div id="qrcode"></div>
+                    <h6 id="qr-header"></h6>
+                    <p id="qr-instruction"></p>
+                </div>
+            </div>
+
+            <!-- Messages Tab -->
+            <div id="messages-tab" class="tab-content">
+                <h4 class="page-title" id="messages-title"></h4>
+                <div id="messages-list"></div>
+            </div>
+            
+            <!-- Profile Tab -->
+            <div id="profile-tab" class="tab-content">
+                <h4 class="page-title" id="profile-title"></h4>
+                <div class="card-view p-3">
+                    <ul class="list-group list-group-flush profile-list">
+                        <li class="list-group-item"><span class="label"></span><span class="value" id="profile-name"></span></li>
+                        <li class="list-group-item"><span class="label"></span><span class="value" id="profile-phone"></span></li>
+                        <li class="list-group-item"><span class="label"></span><span class="value" id="profile-email"></span></li>
+                        <li class="list-group-item"><span class="label"></span><span class="value" id="profile-gender"></span></li>
+                        <li class="list-group-item"><span class="label"></span><span class="value" id="profile-join-date"></span></li>
+                    </ul>
+                </div>
+                <div class="history-card card-view mt-4">
+                    <div class="accordion accordion-flush" id="historyAccordion">
+                      <div class="accordion-item">
+                        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne"></button></h2>
+                        <div id="collapseOne" class="accordion-collapse collapse" data-bs-parent="#historyAccordion"><div class="accordion-body" id="subscription-history-list"></div></div>
+                      </div>
+                      <div class="accordion-item">
+                        <h2 class="accordion-header"><button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo"></button></h2>
+                        <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#historyAccordion"><div class="accordion-body" id="payment-history-list"></div></div>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <nav class="bottom-nav">
+            <a href="#" class="nav-btn active" data-tab="home"><i class="fas fa-home"></i><span></span></a>
+            <a href="#" class="nav-btn" data-tab="messages"><i class="fas fa-envelope"></i><div class="notification-badge" id="message-badge"></div><span></span></a>
+            <a href="#" class="nav-btn" data-tab="profile"><i class="fas fa-user"></i><span></span></a>
+        </nav>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+    
+    <script>
+    'use strict';
+    
+    const API_URL = 'https://sheetdb.io/api/v1/5ua8j6rin3svf';
+    const SHEETS = {
+        members: 'Members',
+        transactions: 'Transactions',
+        subHistory: 'SubscriptionHistory',
+        inbox: 'InboxMessages'
+    };
+    const EXPIRATION_REMINDER_DAYS = 10;
+
+    let currentMember = null;
+    let currentLanguage = 'arabic';
+
+    const loginScreen = document.getElementById('login-screen');
+    const appContainer = document.getElementById('app-container');
+    const loginForm = document.getElementById('login-form');
+    const phoneInput = document.getElementById('phone');
+    const loginErrorMsg = document.getElementById('login-error-msg');
+    const spinner = document.getElementById('loading-spinner');
+    const bottomNav = document.querySelector('.bottom-nav');
+    const logoutBtn = document.getElementById('logout-btn');
+
+    const translations = {
+        welcome: { english: 'Welcome', arabic: 'أهلاً بك' },
+        memberId: { english: 'ID', arabic: 'رقم العضوية' },
+        home: { english: 'Home', arabic: 'الرئيسية' },
+        profile: { english: 'Profile', arabic: 'ملفي' },
+        messages: { english: 'Messages', arabic: 'الرسائل' },
+        logout: { english: 'Logout', arabic: 'خروج' },
+        login: { english: 'Login', arabic: 'تسجيل الدخول' },
+        loginHeader: { english: 'Member Area', arabic: 'منطقة الأعضاء'},
+        phoneLabel: { english: 'Phone Number', arabic: 'رقم الهاتف' },
+        phonePlaceholder: { english: 'Enter your phone number', arabic: 'أدخل رقم هاتفك' },
+        loginError: { english: 'Phone number not found. Please contact administration.', arabic: 'رقم الهاتف غير موجود. يرجى مراجعة الإدارة.' },
+        statusLabel: { english: 'Subscription Status', arabic: 'حالة الاشتراك' },
+        statusActive: { english: 'Active', arabic: 'نشط' },
+        statusExpiring: { english: 'Expiring Soon', arabic: 'سينتهي قريباً' },
+        statusExpired: { english: 'Expired', arabic: 'منتهي الصلاحية' },
+        statusNone: { english: 'No Subscription', arabic: 'لا يوجد اشتراك' },
+        daysLeft: { english: 'days left', arabic: 'أيام متبقية' },
+        dayLeft: { english: 'day left', arabic: 'يوم متبقي' },
+        daysAgo: { english: 'days ago', arabic: 'يوم مضى' },
+        endsOn: { english: 'Ends on', arabic: 'ينتهي في' },
+        qrHeader: { english: 'Your Digital Membership Card', arabic: 'بطاقة عضويتك الرقمية' },
+        qrInstruction: { english: 'Show this code at the reception for entry.', arabic: 'أظهر هذا الرمز عند الاستقبال للدخول.' },
+        myProfile: { english: 'My Profile', arabic: 'ملفي الشخصي' },
+        fullName: { english: 'Full Name', arabic: 'الاسم الكامل' },
+        phone: { english: 'Phone', arabic: 'الهاتف' },
+        email: { english: 'Email', arabic: 'البريد الإلكتروني' },
+        gender: { english: 'Gender', arabic: 'الجنس' },
+        joinDate: { english: 'Join Date', arabic: 'تاريخ الانضمام' },
+        male: { english: 'Male', arabic: 'ذكر' },
+        female: { english: 'Female', arabic: 'أنثى' },
+        subHistory: { english: 'Subscription History', arabic: 'سجل الاشتراكات' },
+        paymentHistory: { english: 'Payment History', arabic: 'سجل المدفوعات' },
+        noHistory: { english: 'No history found.', arabic: 'لا يوجد سجل.' },
+        inbox: { english: 'Inbox', arabic: 'صندوق الوارد' },
+        noMessages: { english: 'You have no messages.', arabic: 'ليس لديك رسائل.' },
+        fromAdmin: { english: 'From: Vorta Fitness', arabic: 'من: إدارة فورتا فيتنس' },
+    };
+
+    function showSpinner() { spinner.style.display = 'flex'; }
+    function hideSpinner() { spinner.style.display = 'none'; }
+    async function apiCall(sheetName) {
+        try {
+            const response = await fetch(`${API_URL}?sheet=${sheetName}`);
+            if (!response.ok) throw new Error(`Failed to fetch ${sheetName}`);
+            return await response.json();
+        } catch (error) { console.error(`API Call Error for ${sheetName}:`, error); return []; }
+    }
+
+    function setLanguage(lang) {
+        currentLanguage = (lang === 'arabic') ? 'arabic' : 'english';
+        document.documentElement.lang = currentLanguage === 'arabic' ? 'ar' : 'en';
+        document.documentElement.dir = currentLanguage === 'arabic' ? 'rtl' : 'ltr';
+
+        const u = (selector, key, prop = 'textContent') => { const el = document.querySelector(selector); if (el) el[prop] = translations[key][currentLanguage]; };
+        
+        u('.login-header p', 'loginHeader');
+        u('#login-form label', 'phoneLabel');
+        u('#phone', 'phonePlaceholder', 'placeholder');
+        u('#login-form button', 'login');
+        u('#login-error-msg', 'loginError');
+        u('.nav-btn[data-tab="home"] span', 'home');
+        u('.nav-btn[data-tab="messages"] span', 'messages');
+        u('.nav-btn[data-tab="profile"] span', 'profile');
+        u('#sub-status-label', 'statusLabel');
+        u('#qr-header', 'qrHeader');
+        u('#qr-instruction', 'qrInstruction');
+        u('#messages-title', 'inbox');
+        u('#profile-title', 'myProfile');
+        u('.profile-list .list-group-item:nth-child(1) .label', 'fullName');
+        u('.profile-list .list-group-item:nth-child(2) .label', 'phone');
+        u('.profile-list .list-group-item:nth-child(3) .label', 'email');
+        u('.profile-list .list-group-item:nth-child(4) .label', 'gender');
+        u('.profile-list .list-group-item:nth-child(5) .label', 'joinDate');
+        u('#historyAccordion .accordion-button[data-bs-target="#collapseOne"]', 'subHistory');
+        u('#historyAccordion .accordion-button[data-bs-target="#collapseTwo"]', 'paymentHistory');
+    }
+
+    async function handleLogin(e) {
+        e.preventDefault();
+        const phoneNumber = phoneInput.value.trim();
+        if (!phoneNumber) return;
+        showSpinner();
+        loginErrorMsg.style.display = 'none';
+        try {
+            const response = await fetch(`${API_URL}/search?phone=${phoneNumber}&sheet=${SHEETS.members}`);
+            if (!response.ok) throw new Error('Network response was not ok.');
+            const data = await response.json();
+            if (data.length > 0) {
+                currentMember = data[0];
+                loginScreen.style.display = 'none';
+                appContainer.style.display = 'block';
+                await populateAppData();
+            } else { loginErrorMsg.style.display = 'block'; }
+        } catch (error) {
+            console.error("Login failed:", error);
+            loginErrorMsg.textContent = "An error occurred. Please try again.";
+            loginErrorMsg.style.display = 'block';
+        } finally { hideSpinner(); }
+    }
+
+    async function populateAppData() {
+        if (!currentMember) return;
+        setLanguage(currentMember.language || currentLanguage);
+        document.getElementById('welcome-message').textContent = `${translations.welcome[currentLanguage]}, ${currentMember.firstName}`;
+        document.getElementById('club-id-text').textContent = `${translations.memberId[currentLanguage]}: #${currentMember.id}`;
+        showSpinner();
+        const [allSubHistory, allTransactions, allInboxMessages] = await Promise.all([
+            apiCall(SHEETS.subHistory),
+            apiCall(SHEETS.transactions),
+            apiCall(SHEETS.inbox)
+        ]);
+        hideSpinner();
+        
+        const memberSubHistory = allSubHistory.filter(item => item.memberId == currentMember.id);
+        const memberTransactions = allTransactions.filter(item => item.memberId == currentMember.id);
+        const memberInbox = allInboxMessages.filter(item => item.memberId == currentMember.id);
+
+        renderHomeTab();
+        renderProfileTab(memberSubHistory, memberTransactions);
+        renderMessagesTab(memberInbox);
+        showTab('home');
+    }
+
+    function renderHomeTab() {
+        const statusTextEl = document.getElementById('sub-status-text');
+        const daysLeftEl = document.getElementById('sub-days-left-text');
+        const endDateEl = document.getElementById('sub-end-date-text');
+        statusTextEl.className = 'status-text';
+        if (currentMember.subscriptionActive === 'TRUE' && currentMember.subscriptionEndDate) {
+            const today = new Date(); today.setHours(0, 0, 0, 0);
+            const endDate = new Date(currentMember.subscriptionEndDate);
+            const daysLeft = Math.ceil((endDate - today) / (1000 * 60 * 60 * 24));
+            endDateEl.textContent = `${translations.endsOn[currentLanguage]} ${endDate.toLocaleDateString(currentLanguage === 'arabic' ? 'ar-EG' : 'en-GB')}`;
+            if (daysLeft < 0) {
+                statusTextEl.textContent = translations.statusExpired[currentLanguage]; statusTextEl.classList.add('text-danger');
+                daysLeftEl.textContent = `${Math.abs(daysLeft)} ${translations.daysAgo[currentLanguage]}`;
+            } else if (daysLeft <= EXPIRATION_REMINDER_DAYS) {
+                statusTextEl.textContent = translations.statusExpiring[currentLanguage]; statusTextEl.classList.add('text-warning');
+                daysLeftEl.textContent = `${daysLeft} ${daysLeft === 1 ? translations.dayLeft[currentLanguage] : translations.daysLeft[currentLanguage]}`;
+            } else {
+                statusTextEl.textContent = translations.statusActive[currentLanguage]; statusTextEl.classList.add('text-success');
+                daysLeftEl.textContent = `${daysLeft} ${translations.daysLeft[currentLanguage]}`;
+            }
+        } else {
+            statusTextEl.textContent = translations.statusNone[currentLanguage]; statusTextEl.classList.add('text-secondary');
+            daysLeftEl.textContent = ''; endDateEl.textContent = '';
+        }
+        const qrContainer = document.getElementById('qrcode');
+        qrContainer.innerHTML = '';
+        new QRCode(qrContainer, { text: `MEMBER_ID:${currentMember.id}`, width: 160, height: 160, colorDark : "#000000", colorLight : "#ffffff", correctLevel : QRCode.CorrectLevel.H });
+    }
+    
+    function renderMessagesTab(data) {
+        const listEl = document.getElementById('messages-list');
+        const badgeEl = document.getElementById('message-badge');
+        listEl.innerHTML = '';
+        if (!data || data.length === 0) {
+            listEl.innerHTML = `<p class="text-muted text-center p-4">${translations.noMessages[currentLanguage]}</p>`;
+            badgeEl.style.display = 'none'; return;
+        }
+        data.sort((a,b) => new Date(b.sentAt) - new Date(a.sentAt));
+        const lastChecked = localStorage.getItem('lastCheckedMessageTimestamp') || 0;
+        const newestMessageTimestamp = new Date(data[0].sentAt).getTime();
+        if (newestMessageTimestamp > lastChecked) { badgeEl.style.display = 'block'; } else { badgeEl.style.display = 'none'; }
+        data.forEach(msg => {
+            const date = new Date(msg.sentAt).toLocaleString(currentLanguage === 'arabic' ? 'ar-EG' : 'en-GB');
+            listEl.innerHTML += `<div class="message-item card-view"><h6>${translations.fromAdmin[currentLanguage]}</h6><p class="mb-1">${msg.messageContent}</p><small class="date">${date}</small></div>`;
+        });
+    }
+    
+    function renderProfileTab(subHistory, transactions) {
+        document.getElementById('profile-name').textContent = `${currentMember.firstName} ${currentMember.lastName}`;
+        document.getElementById('profile-phone').textContent = currentMember.phone;
+        document.getElementById('profile-email').textContent = currentMember.email || 'N/A';
+        document.getElementById('profile-gender').textContent = translations[currentMember.gender.toLowerCase()]?.[currentLanguage] || currentMember.gender;
+        document.getElementById('profile-join-date').textContent = new Date(currentMember.createdAt).toLocaleDateString(currentLanguage === 'arabic' ? 'ar-EG' : 'en-GB');
+        
+        const renderHistory = (listEl, data, formatFn) => {
+            listEl.innerHTML = '';
+            if (data.length > 0) {
+                data.sort((a,b) => new Date(b.startDate || b.date) - new Date(a.startDate || a.date)).forEach(h => listEl.innerHTML += formatFn(h));
+            } else { listEl.innerHTML = `<p class="text-muted small">${translations.noHistory[currentLanguage]}</p>`; }
+        };
+        renderHistory(document.getElementById('subscription-history-list'), subHistory, h => `<p class="mb-1 small">${h.subscriptionType} (₪${h.pricePaid})<br><span class="text-muted">${new Date(h.startDate).toLocaleDateString(currentLanguage === 'arabic' ? 'ar-EG' : 'en-GB')} - ${new Date(h.endDate).toLocaleDateString(currentLanguage === 'arabic' ? 'ar-EG' : 'en-GB')}</span></p><hr class="my-2">`);
+        renderHistory(document.getElementById('payment-history-list'), transactions, t => `<p class="mb-1 small">${t.description} - ₪${t.amount}<br><span class="text-muted">${new Date(t.date).toLocaleDateString(currentLanguage === 'arabic' ? 'ar-EG' : 'en-GB')}</span></p><hr class="my-2">`);
+    }
+
+    function showTab(tabId) {
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        document.getElementById(`${tabId}-tab`).classList.add('active');
+        document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.tab === tabId));
+        if(tabId === 'messages') {
+            document.getElementById('message-badge').style.display = 'none';
+            localStorage.setItem('lastCheckedMessageTimestamp', Date.now().toString());
+        }
+    }
+
+    function handleNavClick(e) {
+        e.preventDefault();
+        const navButton = e.target.closest('.nav-btn');
+        if (navButton) { showTab(navButton.dataset.tab); }
+    }
+
+    function logout() {
+        currentMember = null;
+        appContainer.style.display = 'none';
+        loginScreen.style.display = 'flex';
+        phoneInput.value = '';
+        setLanguage('arabic');
+    }
+
+    document.addEventListener('DOMContentLoaded', () => setLanguage('arabic'));
+    loginForm.addEventListener('submit', handleLogin);
+    bottomNav.addEventListener('click', handleNavClick);
+    logoutBtn.addEventListener('click', logout);
+    </script>
+</body>
+</html>
